@@ -16,10 +16,10 @@ function do_backup()
 
   wget --keep-session-cookies --load-cookies cookies.txt --no-check-certificate \
     --post-data "download=download${getrrd}&__csrf_magic=$(head -n 1 csrf2.txt)" \
-    ${url}/diag_backup.php -q -O ${destination}/config-${PFSENSE_IP}-${timestamp}.xml
+    ${url}/diag_backup.php -q -O ${destination}/config-${BACKUPNAME}-${timestamp}.xml
   return_value=$?
   if [ $return_value -eq 0 ]; then
-    echo "Backup saved as ${destination}/config-${PFSENSE_IP}-${timestamp}.xml"
+    echo "Backup saved as ${destination}/config-${BACKUPNAME}-${timestamp}.xml"
   else
     echo "Backup failed"
     exit 1
@@ -35,6 +35,7 @@ if [ -z "$PFSENSE_IP" ]; then echo "Must provide PFSENSE_IP" ; errors=$(($errors
 if [ -z "$PFSENSE_USER" ]; then echo "Must provide PFSENSE_USER" ; errors=$(($errors + 1)); fi
 if [ -z "$PFSENSE_PASS" ]; then echo "Must provide PFSENSE_PASS" ; errors=$(($errors + 1)); fi
 if [ -z "$PFSENSE_SCHEME" ]; then echo "Must provide PFSENSE_SCHEME" ; errors=$(($errors + 1)); fi
+if [ -z "$BACKUPNAME" ]; then BACKUPNAME=$PFSENSE_IP; fi
 if [ $errors -ne 0 ]; then exit 1; fi
 
 # check for optional parameters
