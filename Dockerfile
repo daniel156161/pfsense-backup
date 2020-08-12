@@ -4,6 +4,7 @@ ENV PFSENSE_IP=192.168.0.1
 ENV PFSENSE_USER=backupuser
 ENV PFSENSE_PASS=changeme
 ENV PFSENSE_SCHEME=https
+ENV BACKUPNAME=router
 
 RUN apk update ; apk upgrade ; apk add wget ; apk add --no-cache tzdata ; apk add --no-cache bash
 
