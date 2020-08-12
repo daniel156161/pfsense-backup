@@ -40,7 +40,7 @@ docker run --detach --volume $(pwd):/data --env PFSENSE_USER=backupuser --env PF
 ## Help!
 - Is the username correct?
 - Is the password correct? Is it quoted properly?
-- The container runs in the UTC timezone, so the cron schedule might be offset from what was expected.
+- The container runs in the UTC timezone, so the cron schedule might be offset from what was expected when the TZ env is not set
 
 ## Credits
 forked from [zxjinn/pfsense-backup](https://github.com/zxjinn/pfsense-backup)
