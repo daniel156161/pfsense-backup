@@ -1,7 +1,7 @@
 # daniel156161/pfsense-backup
 
 ## Short description
-Runs a lightweight Alpine container to back up PFSense.
+Runs a lightweight Alpine container to backup PFSense.
 
 ## Full details
 This image can be used to run a one-time backup of PFSense, or it can be configured to stay in the background and retrieve backups on a user-specified schedule.
