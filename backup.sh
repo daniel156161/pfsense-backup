@@ -60,3 +60,6 @@ url=${PFSENSE_SCHEME}://${PFSENSE_IP}
 timestamp=$(date +%Y%m%d%H%M%S)
 
 do_backup
+if [ ! -z $keepfiles ]; then
+ ls -d -1tr $destination/* | head -n -$keepfiles | xargs -d '\n' rm -f
+fi
