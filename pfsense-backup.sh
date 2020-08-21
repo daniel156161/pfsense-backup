@@ -65,6 +65,9 @@ if [ $cron -eq 1 ]; then
     crond -f
   else
     do_backup
+    if [ ! -z $keepfiles ]; then
+     ls -d -1tr $destination/* | head -n -$keepfiles | xargs -d '\n' rm -f
+    fi
   fi
 else
   do_backup
