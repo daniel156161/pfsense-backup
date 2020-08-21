@@ -61,5 +61,8 @@ timestamp=$(date +%Y%m%d%H%M%S)
 
 do_backup
 if [ ! -z $keepfiles ]; then
- ls -d -1tr $destination/*.xml | head -n -$keepfiles | xargs -d '\n' rm -f
+ remove=$(ls -d -1tr $destination/*.xml | tail -n +$keepfiles | head -n1)
+ if [ ! -z $remove ]; then
+  rm -f $(ls -d -1tr $destination/*.xml | tail -n -$keepfiles | head -n1)
+ fi
 fi
