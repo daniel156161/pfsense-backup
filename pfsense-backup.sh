@@ -69,8 +69,10 @@ if [ $cron -eq 1 ]; then
     remove=$(ls -d -1tr $destination/*.xml | tail -n +$keepfiles | head -n1)
     if [ ! -z $remove ]; then
      del=$(ls $destination/*.xml | head -n -$keepfiles)
-     rm -f $del
-     echo "Backup removed at $del"
+     if [ ! -z $del ]; then
+      rm -f $del
+      echo "Backup removed at $del"
+     fi
     fi
    fi
   fi
