@@ -65,7 +65,9 @@ if [ ! -z $keepfiles ]; then
  if [ ! -z $remove ]; then
   keepfiles=$((keepfiles + 1))
   del=$(ls $destination/*.xml | head -n -$keepfiles)
-  rm -f $del
-  echo "Backup removed at $del"
+  if [ ! -z $del ]; then
+   rm -f $del
+   echo "Backup removed at $del"
+  fi
  fi
 fi
