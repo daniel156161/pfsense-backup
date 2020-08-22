@@ -64,13 +64,16 @@ if [ $cron -eq 1 ]; then
     echo "$PFSENSE_CRON_SCHEDULE FROM_CRON=1 /pfsense-backup.sh" | crontab -
     crond -f
   else
-    do_backup
-    if [ ! -z $keepfiles ]; then
-     remove=$(ls -d -1tr $destination/*.xml | tail -n +$keepfiles | head -n1)
-     if [ ! -z $remove ]; then
-      rm -f $(ls -d -1tr $destination/*.xml | tail -n -$keepfiles | head -n1)
-     fi
+   do_backup
+   if [ ! -z $keepfiles ]; then
+    remove=$(ls -d -1tr $destination/*.xml | tail -n +$keepfiles | head -n1)
+    if [ ! -z $remove ]; then
+     keepfiles=$((keepfiles + 1))
+     del=$(ls $destination/*.xml | tail -n -$keepfiles | head -n1)
+     rm -f $del
+     echo "Backup removed at $del"
     fi
+   fi
   fi
 else
   do_backup
