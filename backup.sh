@@ -63,7 +63,6 @@ do_backup
 if [ ! -z $keepfiles ]; then
  remove=$(ls -d -1tr $destination/*.xml | tail -n +$keepfiles | head -n1)
  if [ ! -z $remove ]; then
-  keepfiles=$((keepfiles + 1))
   del=$(ls $destination/*.xml | head -n -$keepfiles)
   if [ ! -z $del ]; then
    rm -f $del
