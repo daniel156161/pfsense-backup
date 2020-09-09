@@ -60,8 +60,8 @@ timestamp=$(date +%Y%m%d%H%M%S)
 
 if [ $cron -eq 1 ]; then
   if [ -z "$FROM_CRON" ]; then
-    if [ -f /data/crontab.txt ]; then
-     crontab /data/crontab.txt
+    if [ -f $destination/crontab.txt ]; then
+     crontab $destination/crontab.txt
     else
      echo "$PFSENSE_CRON_SCHEDULE FROM_CRON=1 /pfsense-backup.sh" | crontab -
     fi
