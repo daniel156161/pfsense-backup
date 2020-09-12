@@ -62,9 +62,8 @@ if [ $cron -eq 1 ]; then
   if [ -z "$FROM_CRON" ]; then
     if [ -f $destination/crontab.txt ]; then
      crontab $destination/crontab.txt
-    else
-     echo "$PFSENSE_CRON_SCHEDULE FROM_CRON=1 /pfsense-backup.sh" | crontab -
     fi
+    echo "$PFSENSE_CRON_SCHEDULE FROM_CRON=1 /pfsense-backup.sh" | crontab -
     crond -f
   else
    do_backup
