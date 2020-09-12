@@ -38,6 +38,9 @@ docker run --detach --volume $(pwd):/data --env PFSENSE_USER=backupuser --env PF
 - `TZ`. Optional. Timezone settings
 - `keepfiles` . Optional. How many Files do you like to keep (Testing)
 
+### Crontab
+- can run custem Crontab Commands just put it into your Data folder linked to the Container
+
 ## Help!
 - Is the username correct?
 - Is the password correct? Is it quoted properly?
