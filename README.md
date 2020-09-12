@@ -39,7 +39,7 @@ docker run --detach --volume $(pwd):/data --env PFSENSE_USER=backupuser --env PF
 - `keepfiles` . Optional. How many Files do you like to keep (Testing)
 
 ### Crontab
-- can run custem Crontab Commands just put it into your Data folder linked to the Container
+- can run custem Crontab Commands just put crontab.txt into your Data folder linked to the Container
 
 ## Help!
 - Is the username correct?
