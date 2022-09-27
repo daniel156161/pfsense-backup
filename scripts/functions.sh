@@ -89,6 +89,9 @@ function run_backups() {
   echo "* Running backups"
   do_backup
   if [ ! -z "$BORG_BACKUP_TRUE" ]; then
+    BORG_CREATE_PARAMS=($BORG_CREATE_PARAMS)
+    BORG_PRUNE_PARAMS=($BORG_PRUNE_PARAMS)
+
     create_borg_backup "$BACKUPNAME" "${destination}/config-${BACKUPNAME}-${timestamp}.xml"
     purge_borg_backup "$BACKUPNAME"
   fi

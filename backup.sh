@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 source "/scripts/borgBackup.sh"
 source "/scripts/functions.sh"
 
