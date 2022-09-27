@@ -1,8 +1,52 @@
 #!/bin/sh
+source "/borgBackup.sh"
 
 # function definition
-function do_backup()
-{
+function check_pfSense_vars_set() {
+  if [ -z "$PFSENSE_IP" ]; then echo "Must provide PFSENSE_IP" ; errors=$(($errors + 1)) ; fi
+  if [ -z "$PFSENSE_USER" ]; then echo "Must provide PFSENSE_USER" ; errors=$(($errors + 1)); fi
+  if [ -z "$PFSENSE_PASS" ]; then echo "Must provide PFSENSE_PASS" ; errors=$(($errors + 1)); fi
+  if [ -z "$PFSENSE_SCHEME" ]; then echo "Must provide PFSENSE_SCHEME" ; errors=$(($errors + 1)); fi
+  if [ -z "$BACKUPNAME" ]; then BACKUPNAME=$PFSENSE_IP; fi
+}
+
+function check_pfSense_optional_vars() {
+  if [ -z "$PFSENSE_CRON_SCHEDULE" ]; then cron=0 ; else cron=1 ; fi
+  if [ -z "$PFSENSE_BACK_UP_RRD_DATA" ]; then
+    getrrd=""
+  else
+    if [ "$PFSENSE_BACK_UP_RRD_DATA" == "0" ] ; then
+      getrrd="&donotbackuprrd=yes"
+    else
+      getrrd=""
+    fi
+  fi
+  if [ -z "$PFSENSE_BACKUP_DESTINATION_DIR" ]; then
+    destination="/data"
+  else
+    destination="$PFSENSE_BACKUP_DESTINATION_DIR"
+  fi
+}
+
+function check_borg_backup_vars() {
+  if [ ! -z "$BORG_BACKUP_TRUE" ]; then
+    if [ "$BORG_REPO" ]; then echo "Musst provice BORG_REPO"; errors=$(($errors + 1)); fi
+    if [ "$BORG_CREATE_PARAMS" ]; then echo "Musst provice BORG_CREATE_PARAMS"; errors=$(($errors + 1)); fi
+    if [ "$BORG_PRUNE_PARAMS" ]; then echo "Musst provice BORG_PRUNE_PARAMS"; errors=$(($errors + 1)); fi
+  fi
+}
+
+function load_crontab_when_exists_or_create() {
+  if [ -f "$destination/crontab.txt" ]; then
+    crontab "$destination/crontab.txt"
+  else
+    echo "$PFSENSE_CRON_SCHEDULE FROM_CRON=1 /pfsense-backup.sh" >> "$destination/crontab.txt"
+    crontab "$destination/crontab.txt"
+  fi
+  crond -f
+}
+
+function do_backup() {
   wget -qO- --keep-session-cookies --save-cookies cookies.txt \
     --no-check-certificate ${url}/diag_backup.php \
     | grep "name='__csrf_magic'" | sed 's/.*value="\(.*\)".*/\1/' > csrf.txt
@@ -27,32 +71,38 @@ function do_backup()
   rm cookies.txt csrf.txt csrf2.txt
 }
 
+function run_backups() {
+  do_backup
+  if [ ! -z "$BORG_BACKUP_TRUE" ]; then
+    create_borg_backup "$BACKUPNAME" "${destination}/config-${BACKUPNAME}-${timestamp}.xml"
+    purge_borg_backup "$BACKUPNAME"
+  fi
+}
+
+function cleanup_old_backups_when_set() {
+  if [ ! -z $keepfiles ]; then
+    remove=$(ls -d -1tr $destination/*.xml | tail -n +$keepfiles | head -n1)
+    if [ ! -z $remove ]; then
+      del=$(ls $destination/*.xml | head -n -$keepfiles)
+      if [ ! -z $del ]; then
+        rm -f $del
+        echo "Backup removed at $del"
+      fi
+    fi
+  fi
+}
+
 # main execution
 # check for required parameters
 errors=0
-if [ -z "$PFSENSE_IP" ]; then echo "Must provide PFSENSE_IP" ; errors=$(($errors + 1)) ; fi
-if [ -z "$PFSENSE_USER" ]; then echo "Must provide PFSENSE_USER" ; errors=$(($errors + 1)); fi
-if [ -z "$PFSENSE_PASS" ]; then echo "Must provide PFSENSE_PASS" ; errors=$(($errors + 1)); fi
-if [ -z "$PFSENSE_SCHEME" ]; then echo "Must provide PFSENSE_SCHEME" ; errors=$(($errors + 1)); fi
-if [ -z "$BACKUPNAME" ]; then BACKUPNAME=$PFSENSE_IP; fi
+check_pfSense_vars_set
 if [ $errors -ne 0 ]; then exit 1; fi
 
 # check for optional parameters
-if [ -z "$PFSENSE_CRON_SCHEDULE" ]; then cron=0 ; else cron=1 ; fi
-if [ -z "$PFSENSE_BACK_UP_RRD_DATA" ]; then
-  getrrd=""
-else
-  if [ "$PFSENSE_BACK_UP_RRD_DATA" == "0" ] ; then
-    getrrd="&donotbackuprrd=yes"
-  else
-    getrrd=""
-  fi
-fi
-if [ -z "$PFSENSE_BACKUP_DESTINATION_DIR" ]; then
-  destination="/data"
-else
-  destination="$PFSENSE_BACKUP_DESTINATION_DIR"
-fi
+check_pfSense_optional_vars
+
+# borg backups vars set
+check_borg_backup_vars
 
 # set up variables
 url=${PFSENSE_SCHEME}://${PFSENSE_IP}
@@ -60,26 +110,11 @@ timestamp=$(date +%Y%m%d%H%M%S)
 
 if [ $cron -eq 1 ]; then
   if [ -z "$FROM_CRON" ]; then
-    if [ -f $destination/crontab.txt ]; then
-     crontab $destination/crontab.txt
-    else
-     echo "$PFSENSE_CRON_SCHEDULE FROM_CRON=1 /pfsense-backup.sh" >> $destination/crontab.txt
-     crontab $destination/crontab.txt
-    fi
-    crond -f
+    load_crontab_when_exists_or_create
   else
-   do_backup
-   if [ ! -z $keepfiles ]; then
-    remove=$(ls -d -1tr $destination/*.xml | tail -n +$keepfiles | head -n1)
-    if [ ! -z $remove ]; then
-     del=$(ls $destination/*.xml | head -n -$keepfiles)
-     if [ ! -z $del ]; then
-      rm -f $del
-      echo "Backup removed at $del"
-     fi
-    fi
-   fi
+    run_backups
+    cleanup_old_backups_when_set
   fi
 else
-  do_backup
+  run_backups
 fi

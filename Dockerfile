@@ -8,11 +8,13 @@ ENV BACKUPNAME=router
 
 # Install packages
 RUN apk update ; apk upgrade
-RUN apk add --no-cache wget tzdata bash
+RUN apk add --no-cache wget tzdata bash bash-completion \
+borgbackup
+
 RUN rm -rf /var/cache/apk/*
 
 COPY pfsense-backup.sh /
-COPY backup.sh /
+COPY borgBackup.sh /
 
 VOLUME ["/data"]
 CMD ["/pfsense-backup.sh"]
