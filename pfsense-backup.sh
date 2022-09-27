@@ -1,7 +1,13 @@
 #!/bin/sh
 source "/borgBackup.sh"
 
-# function definition
+##############################################################################################################################
+# Funktionen
+##############################################################################################################################
+function sepurator {
+  echo "======================================================================================"
+}
+
 function check_pfSense_vars_set() {
   local errors=0
 
@@ -46,12 +52,15 @@ function check_borg_backup_vars() {
 
 function load_crontab_when_exists_or_create() {
   if [ -f "$destination/crontab.txt" ]; then
+    echo "Load Crontab $destination/crontab.txt"
     crontab "$destination/crontab.txt"
   else
+    echo "Create $destination/crontab.txt"
     echo "$PFSENSE_CRON_SCHEDULE FROM_CRON=1 /pfsense-backup.sh" >> "$destination/crontab.txt"
     crontab "$destination/crontab.txt"
   fi
   crond -f
+  sepurator
 }
 
 function do_backup() {
@@ -80,11 +89,13 @@ function do_backup() {
 }
 
 function run_backups() {
+  echo "* Running backups"
   do_backup
   if [ ! -z "$BORG_BACKUP_TRUE" ]; then
     create_borg_backup "$BACKUPNAME" "${destination}/config-${BACKUPNAME}-${timestamp}.xml"
     purge_borg_backup "$BACKUPNAME"
   fi
+  sepurator
 }
 
 function cleanup_old_backups_when_set() {
@@ -100,7 +111,18 @@ function cleanup_old_backups_when_set() {
   fi
 }
 
+function print_container_info {
+  sepurator
+  echo "* Backup Url: $url"
+  echo "* Backup Timestamp: $timestamp"
+  sepurator
+}
+
 # main execution
+sepurator
+echo "Starting Docker Container..."
+sepurator
+
 # check for required parameters
 check_pfSense_vars_set
 
@@ -113,6 +135,8 @@ check_pfSense_optional_vars
 # set up variables
 url=${PFSENSE_SCHEME}://${PFSENSE_IP}
 timestamp=$(date +%Y%m%d%H%M%S)
+
+print_container_info
 
 if [ $cron -eq 1 ]; then
   if [ -z "$FROM_CRON" ]; then
