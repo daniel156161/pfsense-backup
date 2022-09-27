@@ -12,9 +12,12 @@ RUN apk add --no-cache wget tzdata bash bash-completion \
 borgbackup
 
 RUN rm -rf /var/cache/apk/*
+RUN mkdir -p /scripts
+
+COPY scripts/ /scripts
 
 COPY pfsense-backup.sh /
-COPY borgBackup.sh /
+COPY backup.sh /
 
 VOLUME ["/data"]
 CMD ["/pfsense-backup.sh"]
