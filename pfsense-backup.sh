@@ -3,11 +3,15 @@ source "/borgBackup.sh"
 
 # function definition
 function check_pfSense_vars_set() {
+  local errors=0
+
   if [ -z "$PFSENSE_IP" ]; then echo "Must provide PFSENSE_IP" ; errors=$(($errors + 1)) ; fi
   if [ -z "$PFSENSE_USER" ]; then echo "Must provide PFSENSE_USER" ; errors=$(($errors + 1)); fi
   if [ -z "$PFSENSE_PASS" ]; then echo "Must provide PFSENSE_PASS" ; errors=$(($errors + 1)); fi
   if [ -z "$PFSENSE_SCHEME" ]; then echo "Must provide PFSENSE_SCHEME" ; errors=$(($errors + 1)); fi
   if [ -z "$BACKUPNAME" ]; then BACKUPNAME=$PFSENSE_IP; fi
+
+  if [ $errors -ne 0 ]; then exit 1; fi
 }
 
 function check_pfSense_optional_vars() {
@@ -29,11 +33,15 @@ function check_pfSense_optional_vars() {
 }
 
 function check_borg_backup_vars() {
+  local errors=0
+
   if [ ! -z "$BORG_BACKUP_TRUE" ]; then
     if [ "$BORG_REPO" ]; then echo "Musst provice BORG_REPO"; errors=$(($errors + 1)); fi
     if [ "$BORG_CREATE_PARAMS" ]; then echo "Musst provice BORG_CREATE_PARAMS"; errors=$(($errors + 1)); fi
     if [ "$BORG_PRUNE_PARAMS" ]; then echo "Musst provice BORG_PRUNE_PARAMS"; errors=$(($errors + 1)); fi
   fi
+
+  if [ $errors -ne 0 ]; then exit 1; fi
 }
 
 function load_crontab_when_exists_or_create() {
@@ -94,15 +102,13 @@ function cleanup_old_backups_when_set() {
 
 # main execution
 # check for required parameters
-errors=0
 check_pfSense_vars_set
-if [ $errors -ne 0 ]; then exit 1; fi
-
-# check for optional parameters
-check_pfSense_optional_vars
 
 # borg backups vars set
 check_borg_backup_vars
+
+# check for optional parameters
+check_pfSense_optional_vars
 
 # set up variables
 url=${PFSENSE_SCHEME}://${PFSENSE_IP}
