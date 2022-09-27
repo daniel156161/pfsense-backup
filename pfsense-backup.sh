@@ -28,9 +28,11 @@ if [ $cron -eq 1 ]; then
   if [ -z "$FROM_CRON" ]; then
     load_crontab_when_exists_or_create
   else
+    sepurator
     run_backups
     cleanup_old_backups_when_set
   fi
 else
+  sepurator
   run_backups
 fi
