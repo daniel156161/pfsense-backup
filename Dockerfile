@@ -9,7 +9,7 @@ FROM alpine:latest
 # Install packages
 RUN apk update ; apk upgrade
 RUN apk add --no-cache wget tzdata bash bash-completion \
-borgbackup
+borgbackup openssh-client
 
 RUN rm -rf /var/cache/apk/*
 RUN mkdir -p /scripts
