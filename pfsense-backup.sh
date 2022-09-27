@@ -52,15 +52,15 @@ function check_borg_backup_vars() {
 
 function load_crontab_when_exists_or_create() {
   if [ -f "$destination/crontab.txt" ]; then
-    echo "Load Crontab $destination/crontab.txt"
+    echo "* Load Crontab $destination/crontab.txt"
     crontab "$destination/crontab.txt"
   else
-    echo "Create $destination/crontab.txt"
+    echo "* Create $destination/crontab.txt"
     echo "$PFSENSE_CRON_SCHEDULE FROM_CRON=1 /pfsense-backup.sh" >> "$destination/crontab.txt"
     crontab "$destination/crontab.txt"
   fi
-  crond -f
   sepurator
+  crond -f
 }
 
 function do_backup() {
