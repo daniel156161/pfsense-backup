@@ -22,6 +22,7 @@ function create_borg_backup {
 
   echo "Creating Borg Backup from $FOLDER_TO_BACKUP into the Archive: $ARCHIVE_NAME"
   borg create "${BORG_CREATE_PARAMS[@]}" "$BORG_REPO"::"$ARCHIVE_NAME-{now:%d.%m.%Y_%H:%M}" "$FOLDER_TO_BACKUP"
+  backup_exit=$?
 }
 
 function purge_borg_backup {
@@ -39,4 +40,10 @@ function purge_borg_backup {
 
   echo "Purging Borg Backup Archive: $ARCHIVE_NAME"
   borg prune -a "$ARCHIVE_NAME-*" "${BORG_PRUNE_PARAMS[@]}"
+  prune_exit=$?
+}
+
+function compact_borg_backup {
+  borg compact --progress -v ::
+  compact_exit=$?
 }

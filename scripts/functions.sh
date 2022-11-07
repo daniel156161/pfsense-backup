@@ -94,6 +94,9 @@ function run_backups() {
 
     create_borg_backup "$BACKUPNAME" "${destination}/config-${BACKUPNAME}-${timestamp}.xml"
     purge_borg_backup "$BACKUPNAME"
+    compact_borg_backup
+
+    rm "${destination}/config-${BACKUPNAME}-${timestamp}.xml"
   fi
   sepurator
 }
