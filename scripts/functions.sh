@@ -38,6 +38,11 @@ function check_pfSense_optional_vars() {
   else
     destination="$PFSENSE_BACKUP_DESTINATION_DIR"
   fi
+  if [ -z "$PFSENSE_BACK_UP_EXTRA_DATA" ]; then
+    extradata=""
+  else
+    extradata="&backupdata=yes"
+  fi
 }
 
 function check_borg_backup_vars() {
@@ -77,7 +82,7 @@ function do_backup() {
     | sed 's/.*value="\(.*\)".*/\1/' > csrf2.txt
 
   wget --keep-session-cookies --load-cookies cookies.txt --no-check-certificate \
-    --post-data "download=download${getrrd}${getssh}&__csrf_magic=$(head -n 1 csrf2.txt)" \
+    --post-data "download=download${getrrd}${getssh}${extradata}&__csrf_magic=$(head -n 1 csrf2.txt)" \
     ${url}/diag_backup.php -q -O ${destination}/config-${BACKUPNAME}-${timestamp}.xml
   return_value=$?
   if [ $return_value -eq 0 ]; then
