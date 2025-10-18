@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.22
 
 #ENV PFSENSE_IP=192.168.0.1
 #ENV PFSENSE_USER=none
